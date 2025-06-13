@@ -223,18 +223,24 @@ def manage_update(project_path_str: str) -> None:
     ## get email addresses ------------------------------------------
     project_email_addresses: list[tuple[str, str]] = lib_environment_checker.determine_project_email_addresses(project_path)
     ## check branch -------------------------------------------------
-    lib_environment_checker.check_branch(project_path, project_email_addresses)  # emails admins and exits if not on main
+    """
+    I'm commenting this out since the uv/pyproject.toml architecture makes it easy to run_tests and revert,
+        ...and tests should still pass even if on a branch.
+    """
+    # lib_environment_checker.check_branch(project_path, project_email_addresses)  # emails admins and exits if not on main
     ## check git status ---------------------------------------------
     lib_environment_checker.check_git_status(project_path, project_email_addresses)  # emails admins and exits if not clean
     ## get python version -------------------------------------------
-    version_info: tuple[str, str, str] = lib_environment_checker.determine_python_version(
-        project_path, project_email_addresses
-    )  # ie, ('3.12.4', '~=3.12.0', '/path/to/python3.12')
-    env_python_path_resolved = version_info[2]
+    """
+    I'm commenting this out because in this architecture, `python` isn't called directly.
+    """
+    # version_info: tuple[str, str, str] = lib_environment_checker.determine_python_version(
+    #     project_path, project_email_addresses
+    # )  # ie, ('3.12.4', '~=3.12.0', '/path/to/python3.12')
+    # env_python_path_resolved = version_info[2]
     ## get environment-type -----------------------------------------
     environment_type: str = lib_environment_checker.determine_environment_type(project_path, project_email_addresses)
     ## get uv path --------------------------------------------------
-    # uv_path: Path = lib_environment_checker.determine_uv_path(project_path, project_email_addresses)
     uv_path: Path = Path(UV_PATH)
     ## get group ----------------------------------------------------
     group: str = lib_environment_checker.determine_group(project_path, project_email_addresses)
@@ -243,14 +249,31 @@ def manage_update(project_path_str: str) -> None:
 
     ## ::: initial tests :::
     ## run initial tests --------------------------------------------
-    if environment_type != 'production':
-        run_initial_tests(uv_path, project_path, project_email_addresses)
+    # if environment_type != 'production':
+    #     run_initial_tests(uv_path, project_path, project_email_addresses)
+    run_initial_tests(uv_path, project_path, project_email_addresses)
 
-    ## ::: compilation :::
-    ## compile requirements file ------------------------------------
-    compiled_requirements: Path = compile_requirements(project_path, env_python_path_resolved, environment_type, uv_path)
-    ## cleanup old backups ------------------------------------------
-    remove_old_backups(project_path)
+    ## ::: backup uv.lock :::
+    uv_lock_path: Path = project_path / 'uv.lock'
+    timestamp: str = datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
+    backup_dir: Path = project_path.parent / 'dependency_backups'
+    backup_filepath: Path = backup_dir / f'uv.lock_{timestamp}.txt'
+    log.debug(f'backup_filepath: ``{backup_filepath}``')
+    uv_lock_path.copy(backup_filepath)
+    log.info('ok / backed up uv.lock')
+
+    ## ::: run `uv.lock` and `.venv` updater :::
+    command: list = ['uv', 'sync', '--upgrade', '--group', environment_type]
+    log.debug(f'command: ``{command}``')
+    command_result: tuple[bool, dict] = lib_common.run_command(command)
+    log.debug(f'command_result: {command_result}')
+    (ok, output) = command_result
+    if not ok:
+        message = 'Error during `uv sync`'
+        log.exception(message)
+        raise Exception(message)
+    log.info('ok / `uv sync` was successful')
+
     ## see if the new compile is different --------------------------
     compiled_comparator = CompiledComparator()
     differences_found: bool = compiled_comparator.compare_with_previous_backup(
