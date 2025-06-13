@@ -1,8 +1,3 @@
-# /// script
-# requires-python = "==3.12.*"
-# dependencies = ["python-dotenv==1.0.*"]
-# ///
-
 """
 See README.md for extensive info.
 <https://github.com/Brown-University-Library/requirements-auto-updater/blob/main/README.md>
