@@ -1,0 +1,14 @@
+[project]
+name = "pyproject-autoupdater"
+version = "0.0.0"
+description = "Enables automatic patch updates to the lockfile and venv."
+readme = "https://github.com/birkin/pyproject-autoupdater/blob/main/README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "python-dotenv~=1.1.0",
+]
+
+[dependency-groups]
+local = []
+staging = []
+prod = []
