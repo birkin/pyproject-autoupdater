@@ -76,12 +76,12 @@ Called directly -- or, typically, by a cron job -- this script:
 - Directly:
     ```
     $ cd "/path/to/pyproject-autoupdater/"
-    $ uv run ./auto_update.py --project_path "/path/to/project_to_update_code_dir/"
+    $ uv run ./auto_updater.py --project_path "/path/to/project_to_update_code_dir/"
     ```
 
 - Via cron on servers (eg to run every day at midnight) (all one line):
     ```
-    0 0 * * * cd "/path/to/pyproject-autoupdater/" && path/to/uv run ./auto_update.py --project_path "/path/to/project_to_update_code_dir/"
+    0 0 * * * cd "/path/to/pyproject-autoupdater/" && path/to/uv run ./auto_updater.py --project_path "/path/to/project_to_update_code_dir/"
     ```
 
 ---
