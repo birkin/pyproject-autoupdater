@@ -26,9 +26,9 @@ from lib.lib_compilation_evaluator import CompiledComparator
 from lib.lib_emailer import send_email_of_diffs
 
 ## load envars ------------------------------------------------------
-this_file_path = Path(__file__).resolve()
-stuff_dir = this_file_path.parent.parent
-dotenv_path = stuff_dir / '.env'
+this_file_path: Path = Path(__file__).resolve()
+stuff_dir: Path = this_file_path.parent.parent
+dotenv_path: Path = stuff_dir / '.env'
 assert dotenv_path.exists(), f'file does not exist, ``{dotenv_path}``'
 load_dotenv(find_dotenv(str(dotenv_path), raise_error_if_not_found=True), override=True)
 
@@ -301,10 +301,10 @@ if __name__ == '__main__':
     log.debug('\n\nstarting dundermain')
 
     parser = argparse.ArgumentParser(description='Updates dependencies for the specified project')
-    parser.add_argument('--project', required=True, help='Path to the project directory')
+    parser.add_argument('--project_path', required=True, help='Path to the project directory')
     try:
         args = parser.parse_args()
-        project_path = args.project
+        project_path = args.project_path
         log.debug(f'Project path: {project_path}')
         manage_update(project_path)
     except argparse.ArgumentError as e:
