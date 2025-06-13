@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "python-dotenv" }]
+requires-dist = [{ name = "python-dotenv", specifier = "~=1.1.0" }]
 
 [package.metadata.requires-dev]
 local = []
