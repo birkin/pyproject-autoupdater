@@ -15,6 +15,7 @@ Usage...
 `$ uv run ./auto_updater.py "/path/to/project_code_dir/"`
 """
 
+import argparse
 import logging
 import os
 import subprocess
@@ -303,15 +304,15 @@ def manage_update(project_path_str: str) -> None:
 
 if __name__ == '__main__':
     log.debug('\n\nstarting dundermain')
-    # print(f'sys.argv: ``{sys.argv}``')
-    if len(sys.argv) != 2:
-        message: str = """
-        See usage instructions at:
-        <https://github.com/Brown-University-Library/auto_updater_code?tab=readme-ov-file#usage>
-        """
-        message: str = message.replace('        ', '')  # removes indentation-spaces
-        print(message)
-        sys.exit(1)
 
-    project_path: str = sys.argv[1]
-    manage_update(project_path)
+    parser = argparse.ArgumentParser(description='Updates dependencies for the specified project')
+    parser.add_argument('--project', required=True, help='Path to the project directory')
+    try:
+        args = parser.parse_args()
+        project_path = args.project
+        log.debug(f'Project path: {project_path}')
+        manage_update(project_path)
+    except argparse.ArgumentError as e:
+        log.error(f'Argument error: {e}')
+        parser.print_help()
+        sys.exit(1)
