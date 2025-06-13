@@ -1,3 +1,14 @@
+on this page...
+- [Overview](#overview)
+- [Flow](#flow)
+- [Usage](#usage)
+- [Assumptions](#assumptions)
+- [Notes](#notes)
+- [Motivation](#motivation)
+
+---
+
+
 ## Overview...
 
 Enables automatic dependency and venv updating.
@@ -76,9 +87,14 @@ Called directly -- or, typically, by a cron job -- this script:
 ---
 
 
-## Project assumptions...
+## Assumptions...
+
+### General
 
 - `uv` is installed.
+
+### Project
+
 - The `pyproject.toml` file contains tilde-notation (`package~=1.2.0`) wherever possible. That third numeral is important; we only want to update the `patch` version.
 - There is a `.env` file in the "outer-stuff" directory.
 - The `.env` file contains an `ADMINS_JSON` entry with the following structure:
