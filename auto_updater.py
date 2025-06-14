@@ -242,6 +242,8 @@ def manage_update(project_path_str: str) -> None:
     environment_type: str = lib_environment_checker.determine_environment_type(project_path, project_email_addresses)
     ## get uv path --------------------------------------------------
     uv_path: Path = Path(UV_PATH)
+    ## check pyproject.toml -----------------------------------------
+    lib_environment_checker.check_pyproject_toml(project_path, project_email_addresses)
     ## get group ----------------------------------------------------
     group: str = lib_environment_checker.determine_group(project_path, project_email_addresses)
     ## check for correct group and group-write permissions ---------
