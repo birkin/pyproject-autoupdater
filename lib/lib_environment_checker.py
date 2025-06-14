@@ -294,7 +294,7 @@ def check_group_and_permissions(
     project_path: Path, expected_group: str, project_email_addresses: list[tuple[str, str]]
 ) -> None:
     """
-    Checks that all files in the venv-dir and requirements_backups-dir are group-writeable and owned by the expected group.
+    Checks that all files in the venv-dir and dependency_backups-dir are group-writeable and owned by the expected group.
     If there are any problems:
     - Sends an email to the project sys-admins
     - Exits the script
@@ -303,19 +303,19 @@ def check_group_and_permissions(
     ## get venv path ------------------------------------------------
     venv_tuple: tuple[Path, Path] = lib_common.determine_venv_paths(project_path)
     (venv_bin_path_resolved, venv_path_resolved) = venv_tuple
-    ## get requirements_backups path --------------------------------
-    requirements_backups_path: Path = project_path / 'requirements_backups'
-    requirements_backups_path_resolved: Path = requirements_backups_path.resolve()
+    ## get dependency_backups path ----------------------------------
+    dependency_backups_path: Path = project_path.parent / 'dependency_backups'
+    dependency_backups_path_resolved: Path = dependency_backups_path.resolve()
     ## check-em, danno ----------------------------------------------
     problems = {}
     venv_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(venv_path_resolved, expected_group)
     if venv_problems:
         problems.update(venv_problems)
-    requirements_backups_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(
-        requirements_backups_path_resolved, expected_group
+    dependency_backups_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(
+        dependency_backups_path_resolved, expected_group
     )
-    if requirements_backups_problems:
-        venv_problems.update(requirements_backups_problems)
+    if dependency_backups_problems:
+        problems.update(dependency_backups_problems)
     if problems:
         message = 'Error: Group/Permissions check failed.'
         problems_json: str = json.dumps(problems, sort_keys=True, indent=2)
@@ -331,3 +331,46 @@ def check_group_and_permissions(
         log.info('ok / group and permissions are good')
     return
     ## end def check_group_and_permissions()
+
+
+# def check_group_and_permissions(
+#     project_path: Path, expected_group: str, project_email_addresses: list[tuple[str, str]]
+# ) -> None:
+#     """
+#     Checks that all files in the venv-dir and requirements_backups-dir are group-writeable and owned by the expected group.
+#     If there are any problems:
+#     - Sends an email to the project sys-admins
+#     - Exits the script
+#     """
+#     log.info('::: checking group and permissions ----------')
+#     ## get venv path ------------------------------------------------
+#     venv_tuple: tuple[Path, Path] = lib_common.determine_venv_paths(project_path)
+#     (venv_bin_path_resolved, venv_path_resolved) = venv_tuple
+#     ## get requirements_backups path --------------------------------
+#     requirements_backups_path: Path = project_path / 'requirements_backups'
+#     requirements_backups_path_resolved: Path = requirements_backups_path.resolve()
+#     ## check-em, danno ----------------------------------------------
+#     problems = {}
+#     venv_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(venv_path_resolved, expected_group)
+#     if venv_problems:
+#         problems.update(venv_problems)
+#     requirements_backups_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(
+#         requirements_backups_path_resolved, expected_group
+#     )
+#     if requirements_backups_problems:
+#         venv_problems.update(requirements_backups_problems)
+#     if problems:
+#         message = 'Error: Group/Permissions check failed.'
+#         problems_json: str = json.dumps(problems, sort_keys=True, indent=2)
+#         message += f'\n{problems_json}'
+#         log.exception(message)
+#         ## email project sys-admins ---------------------------------
+#         emailer = Emailer(project_path)
+#         email_message: str = emailer.create_setup_problem_message(message)
+#         emailer.send_email(project_email_addresses, email_message)
+#         ## raise exception -----------------------------------------
+#         raise Exception(message)
+#     else:
+#         log.info('ok / group and permissions are good')
+#     return
+#     ## end def check_group_and_permissions()
