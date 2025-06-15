@@ -242,7 +242,9 @@ def check_pyproject_toml(project_path: Path, project_email_addresses: list[tuple
     valid: bool
     errors: list[str] | None
     (valid, errors) = lib_toml_checker.run_toml_check(toml_path)
-    pass
+    if valid:
+        log.info('ok / pyproject.toml is valid')
+    return
 
 
 def determine_group(project_path: Path, project_email_addresses: list[tuple[str, str]]) -> str:
