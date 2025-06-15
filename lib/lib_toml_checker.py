@@ -4,14 +4,14 @@ import re
 from pathlib import Path
 from typing import Any
 
-import tomlib
+import tomllib
 
 log = logging.getLogger(__name__)
 
 
 def load_toml_file(path: str) -> dict[str, Any]:
     with open(path, 'rb') as f:
-        return tomlib.load(f)
+        return tomllib.load(f)
 
 
 def is_valid_tilde_dep(dep: str) -> bool:
@@ -53,6 +53,10 @@ def validate_pyproject(data: dict[str, Any]) -> list[str]:
 
 
 def run_toml_check(toml_path: Path) -> tuple[bool, list[str]]:
+    """
+    Validates the pyproject.toml file.
+    Returns a tuple of (valid, errors).
+    """
     errors: list[str] = []
     valid: bool = False
     data = load_toml_file(str(toml_path))
