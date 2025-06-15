@@ -214,20 +214,6 @@ def determine_environment_type(project_path: Path, project_email_addresses: list
     Returns 'local', 'staging', or 'production'.
     """
     log.info('::: determining environment type ----------')
-    ## ensure all .in files exist -----------------------------------
-    for filename in ['local.in', 'staging.in', 'production.in']:
-        full_path: Path = project_path / 'requirements' / filename
-        try:
-            assert full_path.exists()
-        except AssertionError:
-            message = f'Error: {full_path} not found'
-            log.exception(message)
-            ## email project-admins ---------------------------------
-            emailer = Emailer(project_path)
-            email_message: str = emailer.create_setup_problem_message(message)
-            emailer.send_email(project_email_addresses, email_message)
-            ## raise exception --------------------------------------
-            raise Exception(message)
     ## determine proper one -----------------------------------------
     hostname: str = subprocess.check_output(['hostname'], text=True).strip().lower()
     if hostname.startswith('d') or hostname.startswith('q'):
@@ -240,27 +226,23 @@ def determine_environment_type(project_path: Path, project_email_addresses: list
     return env_type
 
 
-# def determine_uv_path(project_path: Path, project_email_addresses: list[tuple[str, str]]) -> Path:
-#     """
-#     Checks `which` for the `uv` command.
-#     If that fails, raises Exception and emails project-admins.
-#     Used for compile and sync.
-#     """
-#     log.info('::: determining uv path ----------')
-#     try:
-#         uv_initial_path: str = subprocess.check_output(['which', 'uv'], text=True).strip()
-#         uv_path = Path(uv_initial_path).resolve()  # to ensure an absolute-path
-#     except subprocess.CalledProcessError:
-#         message = 'Error determining uv path'
-#         log.exception(message)
-#         ## email project-admins ---------------------------------
-#         emailer = Emailer(project_path)
-#         email_message: str = emailer.create_setup_problem_message(message)
-#         emailer.send_email(project_email_addresses, email_message)
-#         ## raise exception --------------------------------------
-#         raise Exception(message)
-#     log.info(f'ok / uv_path, ``{uv_path}``')
-#     return uv_path
+def check_pyproject_toml(project_path: Path, project_email_addresses: list[tuple[str, str]]) -> None:
+    """
+    Checks that the pyproject.toml file is valid. Specifically that it:
+    - exists
+    - is a valid toml file
+    - contains `requires-python` and `dependencies` entries
+    - contains `staging` and `prod` [dependency-groups]
+    If there are any problems:
+    - Sends an email to the project sys-admins
+    - Exits the script
+    """
+    log.info('::: checking pyproject.toml ----------')
+    toml_path: Path = project_path / 'pyproject.toml'
+    valid: bool
+    errors: list[str] | None
+    (valid, errors) = lib_toml_checker.run_toml_check(toml_path)
+    pass
 
 
 def determine_group(project_path: Path, project_email_addresses: list[tuple[str, str]]) -> str:
@@ -331,46 +313,3 @@ def check_group_and_permissions(
         log.info('ok / group and permissions are good')
     return
     ## end def check_group_and_permissions()
-
-
-# def check_group_and_permissions(
-#     project_path: Path, expected_group: str, project_email_addresses: list[tuple[str, str]]
-# ) -> None:
-#     """
-#     Checks that all files in the venv-dir and requirements_backups-dir are group-writeable and owned by the expected group.
-#     If there are any problems:
-#     - Sends an email to the project sys-admins
-#     - Exits the script
-#     """
-#     log.info('::: checking group and permissions ----------')
-#     ## get venv path ------------------------------------------------
-#     venv_tuple: tuple[Path, Path] = lib_common.determine_venv_paths(project_path)
-#     (venv_bin_path_resolved, venv_path_resolved) = venv_tuple
-#     ## get requirements_backups path --------------------------------
-#     requirements_backups_path: Path = project_path / 'requirements_backups'
-#     requirements_backups_path_resolved: Path = requirements_backups_path.resolve()
-#     ## check-em, danno ----------------------------------------------
-#     problems = {}
-#     venv_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(venv_path_resolved, expected_group)
-#     if venv_problems:
-#         problems.update(venv_problems)
-#     requirements_backups_problems: dict[str, list[str]] = lib_perms_and_groups.check_files(
-#         requirements_backups_path_resolved, expected_group
-#     )
-#     if requirements_backups_problems:
-#         venv_problems.update(requirements_backups_problems)
-#     if problems:
-#         message = 'Error: Group/Permissions check failed.'
-#         problems_json: str = json.dumps(problems, sort_keys=True, indent=2)
-#         message += f'\n{problems_json}'
-#         log.exception(message)
-#         ## email project sys-admins ---------------------------------
-#         emailer = Emailer(project_path)
-#         email_message: str = emailer.create_setup_problem_message(message)
-#         emailer.send_email(project_email_addresses, email_message)
-#         ## raise exception -----------------------------------------
-#         raise Exception(message)
-#     else:
-#         log.info('ok / group and permissions are good')
-#     return
-#     ## end def check_group_and_permissions()
