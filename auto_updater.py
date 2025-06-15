@@ -211,6 +211,10 @@ def manage_update(project_path_str: str) -> None:
     """
     Main function to manage the update process for the project's dependencies.
     Calls various helper functions to validate, compile, compare, sync, and update permissions.
+
+    Notes:
+    - Removing branch-check since the uv/pyproject.toml architecture makes it easy to run_tests and revert,
+        ...and tests should still pass even if on a branch.
     """
     log.debug('starting manage_update()')
 
@@ -223,11 +227,6 @@ def manage_update(project_path_str: str) -> None:
     ## get email addresses ------------------------------------------
     project_email_addresses: list[tuple[str, str]] = lib_environment_checker.determine_project_email_addresses(project_path)
     ## check branch -------------------------------------------------
-    """
-    I'm commenting this out since the uv/pyproject.toml architecture makes it easy to run_tests and revert,
-        ...and tests should still pass even if on a branch.
-    """
-    # lib_environment_checker.check_branch(project_path, project_email_addresses)  # emails admins and exits if not on main
     ## check git status ---------------------------------------------
     lib_environment_checker.check_git_status(project_path, project_email_addresses)  # emails admins and exits if not clean
     ## get python version -------------------------------------------
