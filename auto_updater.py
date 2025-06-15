@@ -320,6 +320,9 @@ if __name__ == '__main__':
         args = parser.parse_args()
         project_path = args.project_path
         log.debug(f'Project path: {project_path}')
+        ## print the version of python in use -----------------------
+        print(f'python version: {sys.version_info}')
+        ## run the update-code --------------------------------------
         manage_update(project_path)
     except argparse.ArgumentError as e:
         log.error(f'Argument error: {e}')
