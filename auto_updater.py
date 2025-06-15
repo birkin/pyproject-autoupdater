@@ -242,8 +242,6 @@ def manage_update(project_path_str: str) -> None:
 
     ## ::: initial tests :::
     ## run initial tests --------------------------------------------
-    # if environment_type != 'production':
-    #     run_initial_tests(uv_path, project_path, project_email_addresses)
     run_initial_tests(uv_path, project_path, project_email_addresses)
 
     ## ::: backup uv.lock :::
