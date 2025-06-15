@@ -10,7 +10,7 @@ from pathlib import Path
 
 import dotenv
 
-from lib import lib_common, lib_git_handler, lib_perms_and_groups
+from lib import lib_common, lib_git_handler, lib_perms_and_groups, lib_toml_checker
 from lib.lib_emailer import Emailer
 
 log = logging.getLogger(__name__)
