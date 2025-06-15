@@ -215,6 +215,7 @@ def manage_update(project_path_str: str) -> None:
     Notes:
     - Removing branch-check since the uv/pyproject.toml architecture makes it easy to run_tests and revert,
         ...and tests should still pass even if on a branch.
+    - Removing python-version-check because python is no longer called directly.
     """
     log.debug('starting manage_update()')
 
@@ -226,17 +227,8 @@ def manage_update(project_path_str: str) -> None:
     os.chdir(project_path)
     ## get email addresses ------------------------------------------
     project_email_addresses: list[tuple[str, str]] = lib_environment_checker.determine_project_email_addresses(project_path)
-    ## check branch -------------------------------------------------
     ## check git status ---------------------------------------------
     lib_environment_checker.check_git_status(project_path, project_email_addresses)  # emails admins and exits if not clean
-    ## get python version -------------------------------------------
-    """
-    I'm commenting this out because in this architecture, `python` isn't called directly.
-    """
-    # version_info: tuple[str, str, str] = lib_environment_checker.determine_python_version(
-    #     project_path, project_email_addresses
-    # )  # ie, ('3.12.4', '~=3.12.0', '/path/to/python3.12')
-    # env_python_path_resolved = version_info[2]
     ## get environment-type -----------------------------------------
     environment_type: str = lib_environment_checker.determine_environment_type(project_path, project_email_addresses)
     ## get uv path --------------------------------------------------
